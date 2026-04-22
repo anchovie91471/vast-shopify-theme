@@ -4,7 +4,7 @@ import Alpine from 'alpinejs'
 import AlpineCollapse from '@alpinejs/collapse'
 import AlpineFocus from '@alpinejs/focus'
 import AlpineMorph from '@alpinejs/morph'
-import AlpineGlobals from '../js/alpine/index.js'
+import { registerStores, registerComponents } from '../js/alpine/register.js'
 import helpers from '../js/helpers.js'
 
 const ns = 'vast'
@@ -30,8 +30,12 @@ Alpine.plugin(
 
 // Register Alpine stores and components
 document.addEventListener('alpine:init', () => {
-  // Stores and components are auto-registered via AlpineGlobals
-  AlpineGlobals.register(Alpine)
+  registerStores(Alpine,
+    import.meta.glob('../js/alpine/stores/*.js', { eager: true, import: 'default' })
+  )
+  registerComponents(Alpine,
+    import.meta.glob('../js/alpine/components/**/*.js', { eager: true, import: 'default' })
+  )
 })
 
 // Wait for DOM to be interactive before starting Alpine
