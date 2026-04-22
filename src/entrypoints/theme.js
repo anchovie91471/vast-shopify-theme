@@ -13,10 +13,6 @@ window.vastNamespace = ns
 window[ns] = (window[ns] || {})
 window[ns].helpers = helpers
 
-for (const [key, value] of Object.entries(helpers)) {
-    window[ns].helpers[key] = value
-}
-
 // Register and initialize AlpineJS
 window.Alpine = Alpine
 
@@ -38,11 +34,8 @@ document.addEventListener('alpine:init', () => {
   )
 })
 
-// Wait for DOM to be interactive before starting Alpine
-// This allows critical HTML parsing to complete before Alpine processes x-data bindings
-// Improves Interaction to Next Paint (INP) and Time to Interactive (TTI)
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => Alpine.start())
-} else {
-  Alpine.start()
-}
+// Always defer Alpine.start() to DOMContentLoaded so page-scoped
+// entrypoints (product.js, collection.js, blog.js) have time to
+// attach their alpine:init listeners. Module scripts all execute
+// before DCL per the HTML spec, so this is safe and near-zero-latency.
+document.addEventListener('DOMContentLoaded', () => Alpine.start())
