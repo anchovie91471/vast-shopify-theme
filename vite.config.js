@@ -172,6 +172,9 @@ export default {
             input: {
                 theme: path.resolve(process.cwd(), 'src/entrypoints/theme.js'),
                 'theme.css': path.resolve(process.cwd(), 'src/entrypoints/theme.css'),
+                product: path.resolve(process.cwd(), 'src/entrypoints/product.js'),
+                collection: path.resolve(process.cwd(), 'src/entrypoints/collection.js'),
+                blog: path.resolve(process.cwd(), 'src/entrypoints/blog.js'),
             },
             watch: {
                 // Rollup-specific watch configuration

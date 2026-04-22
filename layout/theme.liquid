@@ -35,6 +35,21 @@
         render 'vite' with 'theme.css'
         render 'vite' with 'theme.js'
     %}
+
+    {%- comment -%}Product page bundle{%- endcomment -%}
+    {% if template contains 'product' %}
+        {% render 'vite' with 'product.js' %}
+    {% endif %}
+
+    {%- comment -%}Collection/search bundle (excludes list-collections){%- endcomment -%}
+    {% if template == 'collection' or template contains 'collection.' or template contains 'search' %}
+        {% render 'vite' with 'collection.js' %}
+    {% endif %}
+
+    {%- comment -%}Blog/article bundle{%- endcomment -%}
+    {% if template contains 'blog' or template contains 'article' %}
+        {% render 'vite' with 'blog.js' %}
+    {% endif %}
 </head>
 
 {% liquid
