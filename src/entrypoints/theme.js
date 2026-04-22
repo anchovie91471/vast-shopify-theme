@@ -30,7 +30,7 @@ document.addEventListener('alpine:init', () => {
     import.meta.glob('../js/alpine/stores/*.js', { eager: true, import: 'default' })
   )
   registerComponents(Alpine,
-    import.meta.glob('../js/alpine/components/**/*.js', { eager: true, import: 'default' })
+    import.meta.glob('../js/alpine/components/shared/*.js', { eager: true, import: 'default' })
   )
 })
 
