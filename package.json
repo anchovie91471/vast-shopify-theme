@@ -2,7 +2,7 @@
   "name": "vast-shopify-theme",
   "description": "VAST (Vite + Alpine + Schematic + Tailwind) - A minimal, modern Shopify starter theme with schema-driven development, AlpineJS components, and Tailwind v4.",
   "author": "anchovie91471",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -43,8 +43,8 @@
     "postcss": "^8.5.6",
     "postcss-import": "^16.1.1",
     "tailwindcss": "^4.1.17",
-    "vite": "^7.2.2",
-    "vite-plugin-shopify": "^4.0.2"
+    "vite": "^7.3.2",
+    "vite-plugin-shopify": "^4.1.2"
   },
   "dependencies": {
     "@anchovie/schematic": "^2.2.6",
