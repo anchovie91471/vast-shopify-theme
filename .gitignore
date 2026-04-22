@@ -18,6 +18,7 @@ shopify.theme.toml
 CLAUDE.md
 docs/
 .plans
+.context/
 
 # OS files
 .DS_Store
@@ -52,6 +53,13 @@ coverage/
 .temp/
 
 # Build artifacts - IMPORTANT NOTE
-# The setup script (npm run setup) removes assets/ and snippets/vite.liquid from
-# this file to enable Shopify GitHub integration for store developers
-# Contributors working on VAST should use .git/info/exclude to hide build artifacts
+# The setup script (npm run setup) manages these artifacts based on the
+# deployment strategy you pick during the wizard:
+#   CLI push / "Not sure yet": wraps assets/ and snippets/vite.liquid in a
+#     managed block below (delimited by # >>> VAST setup ... <<< markers).
+#   GitHub integration: removes the managed block (and any legacy bare lines)
+#     so Shopify's GitHub sync can track assets/ and snippets/vite.liquid.
+# Reruns are idempotent — the wizard rewrites or removes its managed block
+# based on the current answer, so it's safe to switch strategies later.
+# Contributors working on VAST can use .git/info/exclude for local-only
+# ignore rules that won't be committed.

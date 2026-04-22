@@ -197,15 +197,50 @@ For complete reference of all included files, see [What's Included](https://gith
 
 ---
 
+## 🔄 Dev Workflow
+
+VAST ships two flavors of the local dev command. Pick the one that matches how you deploy.
+
+### `npm run dev` (default)
+
+Runs Shopify CLI's `theme dev` **without** `--theme-editor-sync`. Local is the source of truth: your files push up to the dev theme, and anything edited on the dev theme via the online editor is discarded on the next cycle. Matches Shopify CLI's own default.
+
+Use this when:
+- You deploy via `npm run deploy*` (CLI push)
+- You treat your repo as the authoritative source of theme code AND content
+- You want a clean `git status` that only reflects code you changed
+
+### `npm run dev:sync`
+
+Runs Shopify CLI's `theme dev` **with** `--theme-editor-sync`. Changes made in the online theme editor against the dev theme flow back into your local working tree as file modifications to `templates/*.json` and `config/settings_data.json`.
+
+Use this when:
+- You use Shopify's GitHub integration (merchants edit content; Shopify commits those changes back to your repo; you want local to stay in sync with that flow during dev)
+- You deliberately use the theme editor to experiment during dev and want to capture changes
+
+There are matching `dev:vite-server` and `dev:vite-server:sync` variants for the alternative Vite-server dev mode (faster HMR; preview-only).
+
+### A note on what the theme editor edits
+
+When someone uses the Shopify theme editor, they're modifying JSON files in your theme repo:
+
+- `templates/*.json` — section/block ordering and block content (text, image references, links) for each page template
+- `config/settings_data.json` — theme-wide settings (colors, fonts, global toggles)
+- `locales/*.json` — translations (less common from the editor)
+
+**What is *not* in the theme:** Products, customers, orders, blog posts, metafields, metaobjects. These live in Shopify's backend database and aren't part of your repo. Changes to any of those have no effect on git.
+
 ## 🚢 Deployment
 
-VAST supports two deployment approaches:
+VAST supports two deployment approaches. Pick the one that matches your `npm run dev*` choice above.
 
 ### GitHub Integration (Automatic)
-Push code to GitHub → Shopify automatically syncs changes to your theme. Great for teams and CI/CD workflows.
+Push code to GitHub → Shopify automatically syncs changes to your theme. Shopify's integration is bidirectional: merchant edits in the theme editor are committed back to your repo as automated commits. Expect to `git pull --rebase` before pushing. Pairs with `npm run dev:sync`.
+
+The setup wizard configures `.gitignore` to allow Shopify's GitHub sync to track `assets/` and `snippets/vite.liquid` when you pick this option.
 
 ### CLI Push (Manual)
-Run deployment commands → Theme pushed directly to Shopify. Great for solo developers and manual control.
+Run deployment commands → Theme pushed directly to Shopify. Great for solo developers and manual control. Pairs with `npm run dev`.
 
 ```bash
 npm run deploy        # Push to production (interactive)
@@ -213,6 +248,8 @@ npm run deploy:dev    # Push to development environment
 npm run deploy:staging # Push to staging environment
 npm run deploy:new    # Create new unpublished theme
 ```
+
+The setup wizard keeps `assets/` and `snippets/vite.liquid` ignored (via a managed block in `.gitignore`) when you pick this option, so build artifacts don't clutter your git status.
 
 For detailed deployment instructions, see [Build & Deployment](https://github.com/anchovie91471/vast-shopify-theme/wiki/Build-and-Deployment).
 

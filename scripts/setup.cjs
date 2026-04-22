@@ -331,6 +331,49 @@ async function setupWithUI() {
     process.exit(0);
   }
 
+  // Step 4.5: Ask about deployment workflow
+  console.log('\n' + chalk.bold('How will you deploy changes to your store?'));
+  console.log(chalk.gray('This configures .gitignore and recommends the right dev script for you.\n'));
+
+  const { workflow } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'workflow',
+      message: 'Select deployment strategy:',
+      default: 'cli',
+      choices: [
+        {
+          name: 'Shopify CLI (manual push)',
+          value: 'cli',
+          short: 'CLI push'
+        },
+        new inquirer.Separator(chalk.gray('  → You run `npm run deploy` to push changes to Shopify')),
+        new inquirer.Separator(chalk.gray('  → Content managed in code; editor-side changes captured manually')),
+        new inquirer.Separator(chalk.gray('  → Build artifacts stay out of git')),
+        new inquirer.Separator(),
+        {
+          name: 'GitHub integration (automatic)',
+          value: 'github',
+          short: 'GitHub integration'
+        },
+        new inquirer.Separator(chalk.gray('  → Shopify syncs automatically when you push to GitHub')),
+        new inquirer.Separator(chalk.gray('  → Merchants edit in the theme editor; Shopify commits changes back to your repo')),
+        new inquirer.Separator(chalk.gray('  → Build artifacts must be tracked in git (wizard will adjust .gitignore)')),
+        new inquirer.Separator(),
+        {
+          name: 'Not sure yet',
+          value: 'unsure',
+          short: 'Not sure'
+        },
+        new inquirer.Separator(chalk.gray('  → Defaults to Shopify CLI settings (safer, matches Shopify\'s own defaults)')),
+        new inquirer.Separator(chalk.gray('  → Rerun this wizard anytime to switch'))
+      ],
+      pageSize: 18
+    }
+  ]);
+
+  const effectiveWorkflow = workflow === 'unsure' ? 'cli' : workflow;
+
   // Step 5: Ask about production environment
   const { addProduction } = await inquirer.prompt([
     {
@@ -530,25 +573,54 @@ theme = "${productionThemeId}"
     process.exit(1);
   }
 
-  // Step 10: Configure .gitignore for Shopify GitHub integration
+  // Step 10: Configure .gitignore based on deployment workflow
   const gitignorePath = path.join(__dirname, '..', '.gitignore');
-  const gitignoreSpinner = ora('Configuring .gitignore for Shopify GitHub integration...').start();
+  const gitignoreSpinner = ora('Configuring .gitignore for your workflow...').start();
+
+  const MARKER_START = '# >>> VAST setup: gitignore block <<<';
+  const MARKER_END = '# >>> end VAST setup <<<';
+  const managedBlock = [
+    MARKER_START,
+    '# Managed by scripts/setup.cjs — safe to delete this block manually.',
+    'assets/',
+    'snippets/vite.liquid',
+    MARKER_END,
+    ''
+  ].join('\n');
 
   try {
     if (fs.existsSync(gitignorePath)) {
-      const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
-      const lines = gitignoreContent.split('\n');
+      let gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
 
-      // Remove lines that exactly match "assets/" or "snippets/vite.liquid"
-      // Keep all other lines, including comments and other patterns
-      const filteredLines = lines.filter(line => {
-        const trimmed = line.trim();
-        return trimmed !== 'assets/' && trimmed !== 'snippets/vite.liquid';
-      });
+      // Remove any existing managed block (idempotent across reruns)
+      const blockRegex = /\n?# >>> VAST setup: gitignore block <<<[\s\S]*?# >>> end VAST setup <<<\n?/g;
+      gitignoreContent = gitignoreContent.replace(blockRegex, '');
 
-      // Write back the modified content
-      fs.writeFileSync(gitignorePath, filteredLines.join('\n'), 'utf-8');
-      gitignoreSpinner.succeed(chalk.green('Configured .gitignore for Shopify GitHub integration'));
+      // Strip bare legacy lines from pre-marker-block wizard versions
+      gitignoreContent = gitignoreContent
+        .split('\n')
+        .filter(line => {
+          const trimmed = line.trim();
+          return trimmed !== '/assets/*'
+            && trimmed !== '!/assets/.gitkeep'
+            && trimmed !== '/snippets/vite.liquid'
+            && trimmed !== 'assets/'
+            && trimmed !== 'snippets/vite.liquid';
+        })
+        .join('\n');
+
+      // Normalize to exactly one trailing newline (keeps mutation idempotent
+      // across direction swaps regardless of the input file's trailing-newline style)
+      gitignoreContent = gitignoreContent.replace(/\n+$/, '') + '\n';
+
+      if (effectiveWorkflow === 'cli') {
+        gitignoreContent += '\n' + managedBlock;
+        fs.writeFileSync(gitignorePath, gitignoreContent, 'utf-8');
+        gitignoreSpinner.succeed(chalk.green('Configured .gitignore to ignore build artifacts (CLI push workflow)'));
+      } else {
+        fs.writeFileSync(gitignorePath, gitignoreContent, 'utf-8');
+        gitignoreSpinner.succeed(chalk.green('Configured .gitignore for Shopify GitHub integration (build artifacts tracked)'));
+      }
     } else {
       gitignoreSpinner.warn(chalk.yellow('.gitignore not found, skipping'));
     }
@@ -562,8 +634,16 @@ theme = "${productionThemeId}"
   console.log('\n' + chalk.green.bold('✨ Setup Complete!'));
   console.log(chalk.gray('─'.repeat(50)));
   console.log('\n' + chalk.bold('Next Steps:'));
-  console.log(chalk.gray('1.') + ' Start the development server:');
-  console.log('   ' + chalk.cyan('npm run dev'));
+
+  if (effectiveWorkflow === 'github') {
+    console.log(chalk.gray('1.') + ' Start the development server:');
+    console.log('   ' + chalk.cyan('npm run dev:sync'));
+    console.log(chalk.gray('   Pulls theme-editor changes back into your working tree.'));
+  } else {
+    console.log(chalk.gray('1.') + ' Start the development server:');
+    console.log('   ' + chalk.cyan('npm run dev'));
+    console.log(chalk.gray('   One-way sync (local → Shopify). Safer default.'));
+  }
 
   if (skipThemeId) {
     console.log('\n' + chalk.cyan('ℹ️  On first run, Shopify CLI will:'));
@@ -577,12 +657,36 @@ theme = "${productionThemeId}"
 
   if (addProduction) {
     console.log(chalk.gray('3.') + ' Deploy to production when ready:');
-    console.log('   ' + chalk.cyan('npm run deploy'));
+    if (effectiveWorkflow === 'github') {
+      console.log('   ' + chalk.cyan('git push') + chalk.gray(' — Shopify syncs automatically'));
+    } else {
+      console.log('   ' + chalk.cyan('npm run deploy'));
+    }
   }
 
   console.log('\n' + chalk.gray('─'.repeat(50)));
-  console.log(chalk.gray('\nTip: For faster HMR, use ' + chalk.cyan('npm run dev:vite-server') + ' instead.'));
-  console.log(chalk.gray('     (Requires accepting SSL cert at https://127.0.0.1:3000 first)'));
+
+  console.log('\n' + chalk.cyan('ℹ️  About dev scripts:'));
+  if (effectiveWorkflow === 'github') {
+    console.log(chalk.gray('   • ') + chalk.cyan('npm run dev:sync') + chalk.gray('  → editor changes flow back to your working tree'));
+    console.log(chalk.gray('   • ') + chalk.cyan('npm run dev') + chalk.gray('       → no round-trip; use ') + chalk.cyan('npm run shopify:pull') + chalk.gray(' to capture manually'));
+  } else {
+    console.log(chalk.gray('   • ') + chalk.cyan('npm run dev') + chalk.gray('       → pushes local to Shopify; editor changes discarded'));
+    console.log(chalk.gray('   • ') + chalk.cyan('npm run dev:sync') + chalk.gray('  → adds --theme-editor-sync; editor changes flow back'));
+  }
+
+  if (workflow === 'unsure') {
+    console.log('\n' + chalk.yellow('ℹ️  You chose "Not sure yet" — the wizard set up the safer defaults.'));
+    console.log(chalk.gray('   If you later connect your repo to Shopify via GitHub integration, rerun'));
+    console.log(chalk.gray('   ') + chalk.cyan('npm run setup') + chalk.gray(' and pick "GitHub integration" to switch.'));
+  }
+
+  console.log('\n' + chalk.gray('Tip: For faster HMR, use ') + chalk.cyan('npm run dev:vite-server'));
+  if (effectiveWorkflow === 'github') {
+    console.log(chalk.gray('     or ') + chalk.cyan('npm run dev:vite-server:sync') + chalk.gray(' for the synced variant.'));
+  } else {
+    console.log(chalk.gray('     (Requires accepting SSL cert at https://127.0.0.1:3000 first)'));
+  }
 
   if (setupPath === 'create') {
     console.log(chalk.gray('\nNote: Your unpublished theme "' + themeName + '" has been created.'));

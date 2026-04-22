@@ -2,13 +2,15 @@
   "name": "vast-shopify-theme",
   "description": "VAST (Vite + Alpine + Schematic + Tailwind) - A minimal, modern Shopify starter theme with schema-driven development, AlpineJS components, and Tailwind v4.",
   "author": "anchovie91471",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "setup": "node scripts/setup.cjs",
     "dev": "run-p shopify:dev vite:watch",
+    "dev:sync": "run-p shopify:dev:sync vite:watch",
     "dev:vite-server": "run-p shopify:dev vite:serve",
+    "dev:vite-server:sync": "run-p shopify:dev:sync vite:serve",
     "build": "run-s vite:build && schematic",
     "deploy": "run-s vite:build && schematic && shopify theme push -e production",
     "deploy:dev": "run-s vite:build && schematic && shopify theme push -e development",
@@ -17,7 +19,8 @@
     "vite:watch": "cross-env NODE_ENV=development vite build --watch --mode development",
     "vite:serve": "cross-env NODE_ENV=development vite",
     "vite:build": "cross-env NODE_ENV=production vite build",
-    "shopify:dev": "shopify theme dev --poll --notify=/tmp/theme.update --theme-editor-sync -e development",
+    "shopify:dev": "shopify theme dev --poll --notify=/tmp/theme.update -e development",
+    "shopify:dev:sync": "shopify theme dev --poll --notify=/tmp/theme.update --theme-editor-sync -e development",
     "shopify:pull": "shopify theme pull",
     "shopify:pull-dev": "shopify theme pull -d"
   },
@@ -44,7 +47,7 @@
     "vite-plugin-shopify": "^4.0.2"
   },
   "dependencies": {
-    "@anchovie/schematic": "^2.2.1",
+    "@anchovie/schematic": "^2.2.6",
     "vite-plugin-page-reload": "^0.2.1"
   }
 }
