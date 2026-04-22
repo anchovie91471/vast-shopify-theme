@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changes prior to 1.2.0 are documented in the git history.
 
+## [1.2.2] — 2026-04-22
+
+### Dependencies
+
+- Bumped `@anchovie/schematic` from 2.2.6 to 2.2.7. Semantic-preserving patch
+  release: fixes catastrophic regex backtracking in `writeCode()` /
+  `writeCodeShort()` marker matching (O(n²) → O(n) per Liquid file), and
+  repairs the `SCHEMATIC_VERBOSE` env var so it actually toggles verbose
+  logging. Upgrade is byte-identical drop-in; schema compilation output is
+  unchanged on VAST's 28 sections. The performance fix mostly benefits large
+  themes — VAST's own compile time only drops from ~35 ms to ~33 ms — but the
+  verbose-env fix is a real dev-ergonomics win for debugging schema issues
+  locally (run with `SCHEMATIC_VERBOSE=1 npm run build` to see it).
+
 ## [1.2.1] — 2026-04-22
 
 ### Security
