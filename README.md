@@ -40,7 +40,7 @@ Complete documentation is available on the [GitHub Wiki](https://github.com/anch
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [Node.js](https://nodejs.org/) v20 or higher
 - [Shopify CLI](https://shopify.dev/docs/themes/tools/cli)
 - A Shopify development store
 

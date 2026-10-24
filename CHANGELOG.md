@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changes prior to 1.2.0 are documented in the git history.
 
+## [1.2.3] — 2026-10-24
+
+### Fixed
+
+- Variant picker: choosing a variant now updates the price and adds that
+  variant to the cart, instead of always the initially selected one. Only the
+  chosen option button shows as selected, and the product form id is now
+  consistent between the form and the picker inputs. Reported and diagnosed
+  by @alexr8 ([#42](https://github.com/anchovie91471/vast-shopify-theme/issues/42)).
+- Add-to-cart button no longer shows "Adding to cart..." after switching back
+  to the browser window. It now only reacts to cart requests from its own
+  form. Reported by @alexr8
+  ([#43](https://github.com/anchovie91471/vast-shopify-theme/issues/43)).
+- Removed duplicate `x-init="init()"` calls that ran component setup twice;
+  product recommendations and recently viewed products no longer fetch twice
+  per page load.
+
+### Dependencies
+
+- Bumped `@anchovie/schematic` from 2.2.7 to 2.2.10. Schema compilation output
+  is unchanged. Schematic now skips writing files whose compiled output hasn't
+  changed, so schema-only builds no longer make Shopify CLI re-upload every
+  section, and it rejects duplicate block `type`/`name` values within a
+  section, matching Shopify's own rule. Requires Node 20 or newer.
+
 ## [1.2.2] — 2026-04-22
 
 ### Dependencies
