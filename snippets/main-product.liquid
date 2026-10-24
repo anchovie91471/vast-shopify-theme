@@ -77,7 +77,7 @@
                 <h1>{{ product.title }}</h1>
                 <div class="flex items-center py-2"
                      x-data="priceComponent"
-                     data-money-format="{{ shop.money_format | json | escape }}">
+                     data-money-format="{{ shop.money_format | strip_html | escape }}">
                     <span class="sr-only">Regular Price</span>
                     <span
                             x-show="compareAtPrice"

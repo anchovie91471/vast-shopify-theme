@@ -4,7 +4,7 @@
          x-data="productRecommendations"
          data-product-id="{{ product.id }}"
          data-limit="{{ section.settings.products_to_show | default: 4 }}"
-         data-money-format="{{ shop.money_format | json | escape }}">
+         data-money-format="{{ shop.money_format | strip_html | escape }}">
 
       {%- comment -%} Heading {%- endcomment -%}
       {% if section.settings.heading != blank %}

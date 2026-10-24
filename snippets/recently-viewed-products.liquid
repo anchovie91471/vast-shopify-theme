@@ -5,7 +5,7 @@
          data-current-product-id="{{ product.id | default: '' }}"
          data-limit="{{ section.settings.products_to_show | default: 4 }}"
          data-exclude-current="{{ section.settings.exclude_current_product | default: true }}"
-         data-money-format="{{ shop.money_format | json | escape }}"
+         data-money-format="{{ shop.money_format | strip_html | escape }}"
          data-product="{{ product | json | escape }}">
 
       {%- comment -%} Heading {%- endcomment -%}

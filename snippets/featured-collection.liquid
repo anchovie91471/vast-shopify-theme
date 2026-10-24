@@ -94,7 +94,7 @@
   {% if section.settings.enable_quick_view %}
     <div x-data="quickViewModal"
          data-show-description="{% if section.settings.quick_view_show_description %}true{% else %}false{% endif %}"
-         data-money-format="{{ shop.money_format | json | escape }}"
+         data-money-format="{{ shop.money_format | strip_html | escape }}"
          x-show="isOpen"
          x-cloak
          @keydown.escape.window="close()"
