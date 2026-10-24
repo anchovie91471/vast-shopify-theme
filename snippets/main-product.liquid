@@ -15,7 +15,6 @@
         <div class="md:flex md:gap-12 pdp-main relative">
             <div class="media flex-1 mb-8 md:mb-0"
                  x-data="productGallery"
-                 x-init="init()"
                  data-images='{{ product.images | json }}'
                  data-gallery-layout="{{ section.settings.gallery_layout | default: 'bottom' }}"
                  data-thumbnail-size="{{ section.settings.gallery_thumbnail_size | default: 80 }}"
@@ -78,7 +77,6 @@
                 <h1>{{ product.title }}</h1>
                 <div class="flex items-center py-2"
                      x-data="priceComponent"
-                     x-init="init()"
                      data-money-format="{{ shop.money_format | json | escape }}">
                     <span class="sr-only">Regular Price</span>
                     <span
@@ -96,7 +94,7 @@
                         , product_form_id: product_form_id
                         , picker_type: section.settings.picker_type %}
 
-                <div x-data="productForm()" x-init="init()">
+                <div x-data="productForm()">
                     <div class="quantity-row space-y-1">
                         <label for="quantity-control-input" class="block text-sm font-medium text-gray-900">Quantity</label>
                         <div class="flex items-center border border-gray-300 w-fit text-gray-700 text-sm">
