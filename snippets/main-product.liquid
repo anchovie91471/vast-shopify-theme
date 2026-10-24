@@ -80,7 +80,7 @@
                      data-money-format="{{ shop.money_format | strip_html | escape }}">
                     <span class="sr-only">Regular Price</span>
                     <span
-                            x-show="compareAtPrice"
+                            x-show="compareAtPrice > displayPrice"
                             x-text="formatMoney(compareAtPrice)"
                             class="line-through mr-2">
           </span>
