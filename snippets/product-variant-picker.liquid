@@ -18,7 +18,7 @@
                             {{ option.name }}
                         </legend>
                         <div class="flex flex-wrap gap-3">
-                            {% render 'product-variant-options', product: product, option: option, picker_type: picker_type %}
+                            {% render 'product-variant-options', product: product, option: option, picker_type: picker_type, product_form_id: product_form_id %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -35,9 +35,9 @@
                                 class="w-full border border-gray-300 px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 name="options[{{ option.name | escape }}]"
                                 form="{{ product_form_id }}"
-                                @change="updateVariant('{{ option.name }}', $event.target.value)"
+                                @change="selectOption('{{ option.name }}', $event.target.value)"
                         >
-                            {% render 'product-variant-options', product: product, option: option, picker_type: picker_type %}
+                            {% render 'product-variant-options', product: product, option: option, picker_type: picker_type, product_form_id: product_form_id %}
                         </select>
                     </div>
                 {% endfor %}

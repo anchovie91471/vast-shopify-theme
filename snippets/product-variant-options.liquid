@@ -5,12 +5,14 @@
   - product: {Object} product object.
   - option: {Object} current product_option object.
   - picker_type: 'radio' || 'select'
+  - product_form_id: {String} Id of the product form the option inputs are associated with.
 
   Usage:
   {% render 'product-variant-options',
     product: product,
     option: option,
-    picker_type: 'radio' || 'select'
+    picker_type: 'radio' || 'select',
+    product_form_id: product_form_id
   %}
 {% endcomment %}
 {%- liquid
@@ -18,8 +20,6 @@
     assign variants_option1_arr = product.variants | map: 'option1'
     assign variants_option2_arr = product.variants | map: 'option2'
     assign variants_option3_arr = product.variants | map: 'option3'
-
-    assign product_form_id = 'product-form-' | append: section.id
 -%}
 
 {% comment %} <script>
@@ -62,26 +62,29 @@
     -%}
 
     {%- if picker_type == 'radio' -%}
-        <input
-                type="radio"
-                id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                name="{{ option.name }}"
-                value="{{ value | escape }}"
-                form="{{ product_form_id }}"
-                @change="updateVariant('{{ option.name }}', '{{ value | escape }}')"
-                :checked="selectedOptions['{{ option.name }}'] === '{{ value | escape }}'"
-                :disabled="!isOptionAvailable('{{ option.name }}', '{{ value | escape }}', $store.productData.product)"
-                class="sr-only peer"
-        >
-        <label
-                for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                @keyup.enter="$el.click()"
-                tabindex="0"
-                class="inline-flex items-center justify-center px-5 py-2 text-sm font-medium bg-blue-600 text-white border border-blue-600 cursor-pointer hover:bg-blue-600 hover:border-blue-600 peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:ring-2 peer-checked:ring-blue-400 peer-checked:ring-offset-2 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:line-through peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 peer-focus:ring-offset-2 transition-colors"
-        >
-            {{ value -}}
-            <span class="sr-only">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
-        </label>
+        {%- comment -%}Each input/label pair gets its own parent so peer-* variants only see their own input{%- endcomment -%}
+        <div>
+            <input
+                    type="radio"
+                    id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                    name="{{ option.name }}"
+                    value="{{ value | escape }}"
+                    form="{{ product_form_id }}"
+                    @change="selectOption('{{ option.name }}', '{{ value | escape }}')"
+                    :checked="selectedOptions['{{ option.name }}'] === '{{ value | escape }}'"
+                    :disabled="!isOptionAvailable('{{ option.name }}', '{{ value | escape }}', $store.productData.product)"
+                    class="sr-only peer"
+            >
+            <label
+                    for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                    @keyup.enter="$el.click()"
+                    tabindex="0"
+                    class="inline-flex items-center justify-center px-5 py-2 text-sm font-medium bg-blue-600 text-white border border-blue-600 cursor-pointer hover:bg-blue-600 hover:border-blue-600 peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:ring-2 peer-checked:ring-blue-400 peer-checked:ring-offset-2 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:line-through peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 peer-focus:ring-offset-2 transition-colors"
+            >
+                {{ value -}}
+                <span class="sr-only">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
+            </label>
+        </div>
     {%- else -%}
         <option
                 value="{{ value | escape }}"
