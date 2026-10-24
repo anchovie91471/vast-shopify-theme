@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changes prior to 1.2.0 are documented in the git history.
 
+## [1.3.0] — 2026-10-24
+
+### Changed
+
+- **Node.js 22.12 or newer is now required** (was 20). `vite-plugin-shopify`
+  5 requires it; Node 20 reached end of life in April 2026.
+
+### Security
+
+- Bumped `vite-plugin-shopify` from 4.1.2 to 5.0.0, which moves Shopify's
+  `@shopify/cli-kit` and `@shopify/plugin-cloudflare` from 3.x to 4.x. Its only
+  breaking change is the Node 22.12 requirement.
+- Bumped `vite` to 7.3.7 and `postcss` to 8.5.31, and updated transitive
+  dependencies within their declared ranges (`shell-quote`, `ws`, `js-yaml`,
+  `brace-expansion`, `protobufjs`, `fast-uri` and others).
+- `npm audit` goes from 32 advisories (2 critical, 15 high) to 15 (0 critical,
+  5 high). Build output is byte-identical to 1.2.4.
+
+### Known remaining advisories
+
+All are in development tooling; none ship to the storefront.
+
+- 14 are inside `@shopify/cli-kit` 4.9.4, the latest release, which pins exact
+  versions of `liquidjs` (10.27.0), `zod` (3.x) and OpenTelemetry (1.x). They
+  clear when Shopify releases a cli-kit with updated pins.
+- 1 is in `@tailwindcss/typography` 0.5.20, the latest release, which pins
+  `postcss-selector-parser` 6.0.10. The advisory is a slow-parsing issue that
+  only applies to untrusted CSS selectors, and the theme only parses its own.
+
 ## [1.2.4] — 2026-10-24
 
 ### Fixed
