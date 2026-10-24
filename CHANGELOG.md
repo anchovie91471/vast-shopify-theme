@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changes prior to 1.2.0 are documented in the git history.
 
+## [1.2.4] — 2026-10-24
+
+### Fixed
+
+- Prices rendered by JavaScript no longer appear wrapped in quote marks
+  (`"$22.99"`). Affects the product page, collection page, featured
+  collection, product recommendations and recently viewed products.
+- The product page only shows the struck-through compare-at price when it is
+  higher than the current price, matching the collection templates.
+
 ## [1.2.3] — 2026-10-24
 
 ### Fixed
