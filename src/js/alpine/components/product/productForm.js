@@ -31,14 +31,20 @@ export default function productForm() {
         }
       })
 
-      // Listen for liquid-ajax-cart events
-      document.addEventListener('liquid-ajax-cart:request-start', () => {
-        this.isProcessing = true
+      // Listen for liquid-ajax-cart events, but only for requests started by this form.
+      // Other requests (e.g. the cart refresh on window focus) must not toggle the button.
+      document.addEventListener('liquid-ajax-cart:request-start', (event) => {
+        if (this.isOwnRequest(event)) this.isProcessing = true
       })
 
-      document.addEventListener('liquid-ajax-cart:request-end', () => {
-        this.isProcessing = false
+      document.addEventListener('liquid-ajax-cart:request-end', (event) => {
+        if (this.isOwnRequest(event)) this.isProcessing = false
       })
+    },
+
+    isOwnRequest(event) {
+      const initiator = event.detail?.requestState?.info?.initiator
+      return initiator instanceof Element && this.$el.contains(initiator)
     },
 
     handleVariantChange(variant) {
